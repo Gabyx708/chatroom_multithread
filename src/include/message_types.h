@@ -1,0 +1,9 @@
+#define I_NEED_TALK 0
+#define PEER_INFO 1
+#define I_AM_LIVE 2
+#define I_AM_DEAD 3
+#define INIT_TALK 4
+#define ACCEPT_TALK 5
+#define I_AM 6
+#define TALK 7
+#define END_TALK 8
