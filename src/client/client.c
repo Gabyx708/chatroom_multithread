@@ -5,17 +5,25 @@
 #include <string.h>
 #include <unistd.h>  // Para close()
 
+#include "message_functions.h"
 #include "message_types.h"
 #include "message.h"
 #include "proto.h"
 
-#define SERVER_IP "127.0.0.1"
-#define SERVER_PORT 8000
+#define LENGHT_NAME 20
+
+//variables globales
+int socketclient;
+struct sockaddr_in server_addr;
 
 int main() {
-    int socketclient;
-    struct sockaddr_in server_addr;
+    
+    //presentarse
+    char nickname[50];
+    printf("introduce tu nombre de usuario: ");
+    scanf("%s",nickname);
 
+    printf("'%s'\n",nickname);
     socketclient = socket(AF_INET, SOCK_DGRAM, 0);
     if (socketclient == -1) {
         perror("Fail to create socket");
@@ -34,15 +42,17 @@ int main() {
     }
 
     // Preparar el mensaje
-    struct message alive_msg;
-    strncpy(alive_msg.to, SERVER_IP, sizeof(alive_msg.to) - 1);
-    alive_msg.to[sizeof(alive_msg.to) - 1] = '\0';
-    alive_msg.type = I_AM;
-    strncpy(alive_msg.payload, "Hello World", sizeof(alive_msg.payload) - 1);
-    alive_msg.payload[sizeof(alive_msg.payload) - 1] = '\0';
+    struct message i_am_mgs;
+    strncpy(i_am_mgs.to, SERVER_IP, sizeof(i_am_mgs.to) - 1);
+    i_am_mgs.to[sizeof(i_am_mgs.to) - 1] = '\0';
+    i_am_mgs.type = I_AM;
+    strncpy(i_am_mgs.payload,nickname, sizeof(i_am_mgs.payload) - 1);
+    i_am_mgs.payload[sizeof(i_am_mgs.payload) - 1] = '\0';
+
+    print_message(i_am_mgs);
 
     // Enviar el mensaje
-    if (sendto(socketclient, &alive_msg, sizeof(alive_msg), 0, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) {
+    if (sendto(socketclient, &i_am_mgs, sizeof(i_am_mgs), 0, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) {
         perror("Fail to send message");
         close(socketclient);
         exit(EXIT_FAILURE);

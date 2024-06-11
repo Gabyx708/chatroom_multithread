@@ -9,18 +9,9 @@
 #include "message_types.h"
 #include "message.h"
 #include "user.h"
-#include "user_table_functions.c"
+#include "user_table_functions.h"
 
-#define SERVER_PORT 8000
 #define IP_LENGTH 16
-
-
-void format_time_iso8601(time_t time, char *buffer, size_t buffer_size) {
-    struct tm *timeinfo = gmtime(&time);
-    strftime(buffer, buffer_size, "%Y-%m-%dT%H:%M:%SZ", timeinfo);
-}
-
-
 
 int main() {
 

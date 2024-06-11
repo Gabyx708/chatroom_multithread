@@ -1,29 +1,26 @@
 CC = gcc
-CFLAGS = -Wall -Wextra
-SRC_DIR = src
-INCLUDE_DIR = $(SRC_DIR)/include
-OUT_DIR = out
-SERVER_OUT_DIR = $(OUT_DIR)/
-CLIENT_OUT_DIR = $(OUT_DIR)/
+CFLAGS = -Wall -I src/include/
+SRC = src
+LIBS = -pthread
+DST_DIR = out
 
-SERVER_SRC = $(SRC_DIR)/server/server.c $(SRC_DIR)/server/user_table_functions.c
-CLIENT_SRC = $(SRC_DIR)/client/client.c
-SERVER_OBJ = $(patsubst $(SRC_DIR)/%.c,$(OUT_DIR)/%.o,$(SERVER_SRC))
-CLIENT_OBJ = $(patsubst $(SRC_DIR)/%.c,$(OUT_DIR)/%.o,$(CLIENT_SRC))
+all: create_dir server.out client.out
 
-all: server client
+create_dir:
+	mkdir -p $(DST_DIR)
 
-server: $(SERVER_OBJ)
-	@mkdir -p $(SERVER_OUT_DIR)
-	$(CC) $(CFLAGS) -o $(SERVER_OUT_DIR)/server $(SERVER_OBJ)
-
-client: $(CLIENT_OBJ)
-	@mkdir -p $(CLIENT_OUT_DIR)
-	$(CC) $(CFLAGS) -o $(CLIENT_OUT_DIR)/client $(CLIENT_OBJ)
-
-$(OUT_DIR)/%.o: $(SRC_DIR)/%.c
-	@mkdir -p $(OUT_DIR)
-	$(CC) $(CFLAGS) -I$(INCLUDE_DIR) -c $< -o $@
+server.out: server.o user_table_functions.o
+	$(CC) $(CFLAGS) $(LIBS) -o $(DST_DIR)/server.out server.o user_table_functions.o
+client.out: client.o message_functions.o
+	$(CC) $(CFLAGS) $(LIBS) -o $(DST_DIR)/client.out client.o
+server.o: $(SRC)/server/server.c
+	$(CC) $(CFLAGS) -c $(SRC)/server/server.c
+client.o: $(SRC)/client/client.c
+	$(CC) $(CFLAGS) -c $(SRC)/client/client.c
+user_table_functions.o: $(SRC)/server/user_table_functions.c
+	$(CC) $(CFLAGS) -c $(SRC)/server/user_table_functions.c
+message_functions.o: $(SRC)/client/message_function.c
+	$(CC) $(CFLAGS) -c $(SRC)/client/message_function.c
 
 clean:
-	rm -rf $(OUT_DIR)
+	rm -rf ./$(DST_DIR) && rm  *.out  *.o

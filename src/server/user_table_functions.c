@@ -1,5 +1,28 @@
 #include "user.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
 
+struct User user_table[USERS_MAX_COUNT];
+/*==================================================================================*/
+ /* imprime el tiempo en un formato legible*/
+ /*================================================================================*/
+void format_time_iso8601(time_t time, char *buffer, size_t buffer_size) {
+    struct tm *timeinfo = gmtime(&time);
+    strftime(buffer, buffer_size, "%Y-%m-%dT%H:%M:%SZ", timeinfo);
+}
+
+/*==================================================================================*/
+ /* devuelve la ultima posicion disponible en la tabla de usuarios*/
+ /*================================================================================*/
+int last_available_position() {
+    for (int i = 0; i < USERS_MAX_COUNT; i++) {
+        if (strlen(user_table[i].username) == 0) {
+            return i; 
+        }
+    }
+    return -1;
+}
 
 /*==================================================================================*/
  /* imprime la tabla de usuarios que maniene el servidor*/
@@ -83,14 +106,3 @@ void update_user_lastconnectgion(char*username){
 
 }
 
-/*==================================================================================*/
- /* devuelve la ultima posicion disponible en la tabla de usuarios*/
- /*================================================================================*/
-int last_available_position() {
-    for (int i = 0; i < USERS_MAX_COUNT; i++) {
-        if (strlen(user_table[i].username) == 0) {
-            return i; 
-        }
-    }
-    return -1;
-}

@@ -1,3 +1,6 @@
+#ifndef MESSAGE_H
+#define MESSAGE_H
+
 #include "proto.h"
 
 struct  message
@@ -8,3 +11,4 @@ struct  message
     char payload[MAX_MSG_LENGHT];
 };
 
+#endif /* MESSAGE_H */
