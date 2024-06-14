@@ -75,34 +75,40 @@ void add_user(const char* username, const char* ip, bool is_busy, bool is_connec
 /*==================================================================================*/
  /* devuelve el indice del usuario , si no existe devuelve 99r*/
  /*================================================================================*/
-int check_user_index(char*username){
-
-    for(int i=0 ; i< USERS_MAX_COUNT;i++)
-    {
-            if(user_table[i].username == username){
-                    return i;
-            }
+int check_user_index(const char* username) {
+    for (int i = 0; i < USERS_MAX_COUNT; i++) {
+        if (strcmp(user_table[i].username, username) == 0) {
+            return i;
+        }
     }
-
     return 99;
 }
 
 /*==================================================================================*/
  /* actualiza el estado , si el usuario se encuentra en una conversaicon o no*/
  /*================================================================================*/
-void update_user_busy(char*username , bool isBusy){
-
+void update_user_busy(const char* username, bool isBusy) {
     int index = check_user_index(username);
-    user_table[index].is_busy = isBusy;
-
+    if (index != 99) {  // Verifica que el índice sea válido
+        user_table[index].is_busy = isBusy;
+    } else {
+        printf("Usuario no encontrado: %s\n", username);
+    }
 }
 
 /*==================================================================================*/
  /* setea un timestamp que corresponde con la ultima conexion del usuario*/
  /*================================================================================*/
-void update_user_lastconnectgion(char*username){
+void update_user_lastconnection(char *username,bool isConected){
+
     int index = check_user_index(username);
-    user_table[index].last_connection = time(NULL);
+  
+      if (index != 99) {  // Verifica que el índice sea válido
+        user_table[index].last_connection = time(NULL);
+        user_table[index].is_connected = isConected;
+    } else {
+        printf("Usuario no encontrado: %s\n", username);
+    }
 
 }
 

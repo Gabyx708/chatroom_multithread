@@ -19,7 +19,7 @@ int main() {
     int socketserver;
     struct sockaddr_in server_addr, client_addr;
     socklen_t client_addr_len = sizeof(client_addr);
-    struct message recv_msg;
+    struct message recv_msg , send_msg;
     char client_ip[IP_LENGTH];
 
     // Crear el socket
@@ -42,31 +42,55 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("Server listening on port %d\n", SERVER_PORT);
+    printf("[-]Server listening on port: %d\n", SERVER_PORT);
+    printf("[-]Server esperando por mensajes\n");
 
     while (1) {
         // Recibir el mensaje
         ssize_t recv_len = recvfrom(socketserver, &recv_msg, sizeof(recv_msg), 0, (struct sockaddr *)&client_addr, &client_addr_len);
+
         if (recv_len == -1) {
             perror("Fail to receive message");
             close(socketserver);
-            exit(EXIT_FAILURE);
+             exit(EXIT_FAILURE);
         }
+
+        if(recv_msg.type == I_AM)
+        {
+            printf("[-]se recibio un mensaje del tipo (I AM) | registrando ('%s') \n",recv_msg.from);
+            
+            char client_ip[MAX_USER_IP_LENGTH];
+            inet_ntop(AF_INET, &(client_addr.sin_addr), client_ip, INET_ADDRSTRLEN);
+
+            add_user(recv_msg.payload,client_ip,false,true,time(NULL));
+            
+            send_msg.type = NEW_USER;
+            strcpy(send_msg.payload,"OK");
+            ssize_t send_len = sendto(socketserver, &send_msg, sizeof(send_msg), 0, (struct sockaddr *)&client_addr, client_addr_len);
+
+        }
+
+        if(recv_msg.type == I_AM_LIVE)
+        {
+            printf("[-]se recibio un mensaje del tipo (I AM ALIVE) | actualizando estado \n");
+            //printf("from: %s",recv_msg.from); //<---- aqui marca violacion del segmento ayuda aqui GTP
+            update_user_lastconnection("jesus",true);          
+        }
+
+
 
         // Convertir la dirección IP del cliente a formato legible
         inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, IP_LENGTH);
 
         // Imprimir la información recibida
-        printf("Received message from %s:%d\n", client_ip, ntohs(client_addr.sin_port));
-        printf("Message payload: %s\n", recv_msg.payload);
+        printf("[-]recibido desde => %s:%d\n", client_ip, ntohs(client_addr.sin_port));
+
 
         //save user
         if(recv_msg.type == I_NEED_TALK){
-         add_user(recv_msg.payload, client_ip, false, true, time(NULL));
-         print_user_table();
+            printf("[-]se recibio un mensaje del tipo (I NEED TALK) | preparando inicio de comunicacion");
         }
 
-         //print table
     }
 
     // Cerrar el socket

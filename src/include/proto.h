@@ -1,4 +1,4 @@
 #define MAX_MSG_LENGHT 120
 #define IP_LENGHT 16
-#define SERVER_IP "172.0.0.1"
+#define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 8000

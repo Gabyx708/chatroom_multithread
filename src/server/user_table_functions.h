@@ -7,4 +7,4 @@ void print_user_table();
 void add_user(const char* username, const char* ip, bool is_busy, bool is_connected, time_t last_connection);
 int check_user_index(char*username);
 void update_user_busy(char*username , bool isBusy);
-void update_user_lastconnectgion(char*username);
+void update_user_lastconnection(char*username,bool isConected);

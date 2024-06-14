@@ -6,6 +6,6 @@
  /*================================================================================*/
 void print_message(struct message msg)
 {
-    printf("======MESSAGE=======\n");
+    //printf("======MESSAGE=======\n");
     printf("content: %s",msg.payload);
 }

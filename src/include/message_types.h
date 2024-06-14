@@ -7,3 +7,4 @@
 #define I_AM 6
 #define TALK 7
 #define END_TALK 8
+#define NEW_USER 9
