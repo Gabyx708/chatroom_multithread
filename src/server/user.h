@@ -10,6 +10,7 @@
 struct User {
     char username[20];
     char ip[MAX_USER_IP_LENGTH];
+    int port;
     bool is_busy;
     bool is_connected;
     time_t last_connection;

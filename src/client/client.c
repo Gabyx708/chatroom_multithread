@@ -103,15 +103,17 @@ int main() {
             }
 
             fprintf(file,"(ALIVE) message sent to %s:%d | thread (%d)\n", SERVER_IP, SERVER_PORT,id_thread);
-            fflush(file); //escribe en el archivo
+            fflush(file); //escribe en el archivo de log
             sleep(1); //descansa por 2 segundos
+
             }
             
         }
+    }
 
-        #pragma omp section
+        #pragma omp sections
         {
-            // consulta para obtener la IP del peer
+            // este hilo debe realizar la consulta para obtener la IP del peer
             char peer_nickname[30];
             printf("[*]introduce el nombre de usuario con quien deseas hablar:");
             scanf("%s", peer_nickname);
@@ -119,16 +121,63 @@ int main() {
 
             struct message get_peer_msg;
             get_peer_msg.type = I_NEED_TALK;
-            strcpy(get_peer_msg.to, nickname);
+            strcpy(get_peer_msg.from, nickname);
             strcpy(get_peer_msg.payload, peer_nickname);
             sendto(socketclient, &get_peer_msg, sizeof(get_peer_msg), 0, (struct sockaddr *)&server_addr, sizeof(server_addr));
 
-            printf("[*]se recibio %s",recv_msg.payload);
-        }
-    }
+            // Recibir la IP y puerto del peer
+            recv = recvfrom(socketclient, &recv_msg, sizeof(recv_msg), 0, (struct sockaddr *)NULL, NULL);
 
+            if (recv < 0) {
+                perror("Error al recibir la respuesta del servidor");
+                exit(EXIT_FAILURE);
+            }
 
-    // Cerrar el socket
+            if (recv_msg.type == PEER_INFO) {
+                sscanf(recv_msg.payload, "%s %d", peer_ip, &peer_port);
+                printf("[*] IP del peer: %s, Puerto del peer: %d\n", peer_ip, peer_port);
+            }
+
+            // Configurar la dirección del peer
+            struct sockaddr_in peer_addr;
+            memset(&peer_addr, 0, sizeof(peer_addr));
+            peer_addr.sin_family = AF_INET;
+            peer_addr.sin_port = htons(peer_port);
+            inet_pton(AF_INET, peer_ip, &peer_addr.sin_addr);
+
+            #pragma omp parallel sections
+            {
+                #pragma omp section
+                {
+                    // Hilo para enviar mensajes al peer
+                    char message[256];
+                    while (1) {
+                        printf("[YO]:");
+                        fgets(message, sizeof(message), stdin);
+                        struct message msg;
+                        msg.type = MESSAGE;
+                        strcpy(msg.from, nickname);
+                        strcpy(msg.payload, message);
+                        sendto(socketclient, &msg, sizeof(msg), 0, (struct sockaddr *)&peer_addr, sizeof(peer_addr));
+                    }
+                }
+
+                #pragma omp section
+                {
+                    // Hilo para recibir mensajes del peer
+                    struct message msg;
+                    while (1)
+                    {
+                        recv = recvfrom(socketclient, &msg, sizeof(msg), 0, (struct sockaddr *)NULL, NULL);
+                        if (recv > 0)
+                        {
+                            printf("[%s]: %s\n", msg.from, msg.payload);
+                        }
+                    }
+                }
+            }
+
+            // Cerrar el socket
     close(socketclient);
     return 0;
 }

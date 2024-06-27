@@ -33,8 +33,10 @@ void print_user_table() {
     for (int i = 0; i < USERS_MAX_COUNT; i++) {
 
             
-            if(strlen(user_table[i].username) > 0 ){
-                    char last_connection_str[20];
+            if(strlen(user_table[i].username) > 0 )
+            {
+            
+            char last_connection_str[20];
 
             format_time_iso8601(user_table[i].last_connection, last_connection_str, sizeof(last_connection_str));
             printf("User %d:\n", i);
@@ -44,15 +46,14 @@ void print_user_table() {
             printf("  Connected: %s\n", user_table[i].is_connected ? "Yes" : "No");
             printf("  Last Connection: %s\n", last_connection_str);
             }
-            
-        
+                   
     }
 }
 
 /*==================================================================================*/
  /* agrega un nuevo usuario al servidor*/
  /*================================================================================*/
-void add_user(const char* username, const char* ip, bool is_busy, bool is_connected, time_t last_connection) {
+void add_user(const char* username, const char* ip,int port, bool is_busy, bool is_connected, time_t last_connection) {
     
     int index = last_available_position();
 
@@ -70,6 +71,7 @@ void add_user(const char* username, const char* ip, bool is_busy, bool is_connec
     user_table[index].is_busy = is_busy;
     user_table[index].is_connected = is_connected;
     user_table[index].last_connection = last_connection;
+    user_table[index].port = port;
 }
 
 /*==================================================================================*/
@@ -112,3 +114,14 @@ void update_user_lastconnection(char *username,bool isConected){
 
 }
 
+/*==================================================================================*/
+/* devuelve el usuario si se encuentra en la tabla */
+/*================================================================================*/
+struct User* get_user(const char* username) {
+    int index = check_user_index(username);
+    if (index != 99) {
+        return &user_table[index];
+    } else {
+        return NULL;
+    }
+}
